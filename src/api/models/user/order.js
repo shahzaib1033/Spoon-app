@@ -1,5 +1,6 @@
 
 const mongoose = require('mongoose');
+const { stringify } = require('uuid');
 
 
 const variants = mongoose.Schema({
@@ -44,6 +45,10 @@ const orderModel = mongoose.Schema({
         type: String,
         enum: ['pending', 'Payment Successful'],
         default: 'pending'
+    },
+    address: {
+        type: String,
+        required: true
     },
     paymentMethode: {
         type: String,

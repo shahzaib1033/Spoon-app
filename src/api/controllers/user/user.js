@@ -1,29 +1,31 @@
 //require things
-const { emailsender } = require('../../../config/methods/emailsender');
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response')
 const generatePassword = require('../../../config/methods/generatecode');
+const { emailsender } = require('../../../config/methods/emailsender');
 const massages = require('../../../config/methods/massage.js');
 const userInfo = require('../../models/user/userRegister.js');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const { use } = require('passport');
 require("dotenv").config();
 
 const signUpHandler = async (req, res) => {
     try {
 
-        const { userName, email, password,isAdmin } = req.body;
+        const { userName, email, password, isAdmin } = req.body;
 
         const oldUser = await userInfo.findOne({ email })
         if (oldUser) {
-            return res.send(massages.alreadyexisting)
+            useErrorResponse(res, massages.alreadyexisting, 403)
         }
         const encryptedpassword = await bcrypt.hash(password, 10)
         const saveData = await userInfo.create({
             userName: userName,
             email: email,
             password: encryptedpassword,
-            isAdmin: isAdmin 
+            isAdmin: isAdmin
 
         });
 
@@ -33,7 +35,7 @@ const signUpHandler = async (req, res) => {
         //     console.log(documents)
         // }
 
-        const code = await generatePassword(6)
+        const code = await generatePassword(4)
         console.log(code)
         saveData.OTP = code;
         await saveData.save();
@@ -44,12 +46,11 @@ const signUpHandler = async (req, res) => {
 
         if (saveData) {
             // imgHandler.uploadImages(req, res, _id)
-
-            res.status(200).send(massages.createdNowVerify)
+            useSuccessResponse(res, massages.createdNowVerify, saveData.email, 200)
         }
     } catch (err) {
         console.log(err)
-        res.status(500).json({ message: massages.unexpectedError });
+        useErrorResponse(res, massages.unexpectedError, 500)
 
     }
 
@@ -71,42 +72,54 @@ const resendpassword = async (req, res) => {
             console.log(user.OTP)
             const subject = "User Verification"
             await emailsender(email, code, subject);
-            res.status(200).json({ massage: "verification code successfully sent to user " });
+            const data = { email }
+            return useSuccessResponse(res, massages.sentcode, data, 200)
+
         }
     } catch (err) {
-        return res.json({ error: err })
+        return useErrorResponse(res, 'error', 404)
+
     }
 
 }
 
 const signinHandler = async (req, res) => {
     try {
-        const { email, token, password } = req.body;
+        const { email, password } = req.body;
+        console.log('i am here')
         const user = await userInfo.findOne({ email })
-        const { userName} = await user
+        const { userName } = await user
         if (!user.isActive) {
-            return res.status(401).send(masssages.verifyFirst)
+            console.log(massages.verifyFirst);
+            return useErrorResponse(res, 401, massages.verifyFirst)
 
         }
 
-        const data = { userName, email }
         const tokenVersion = await generatePassword(9);
         if (email && (await bcrypt.compare(password, user.password)) && !(user.isDelete)) {
             const tokens = jwt.sign({ _id: user.id, isAdmin: user.isAdmin, tokenVersion: tokenVersion }, process.env.SECRET);
+            const data = { userName, email, tokens }
+            // console.log(massages.successInLogin);
+            // console.log(tokens);
 
-            
-            return res.status(200).json({ tokens, massage: massages.successInLogin, userData: data });
+            await useSuccessResponse(res, massages.successInLogin, data, 200)
         }
 
         else {
-            res.send(massages.invalidData)
+            console.log(massages.invalidData);
+
+            return useErrorResponse(res, 303, massages.invalidData)
+
         }
     }
 
     catch (err) {
         console.log(err);
+        useErrorResponse(res, 401, massages.verifyFirst)
+
     }
-} 
+
+}
 
 const updateHandler = async (req, res) => {
 
@@ -119,7 +132,12 @@ const updateHandler = async (req, res) => {
         if (await bcrypt.compare(password, user.password)) {
             user.userName = req.body.userName;
         }
-        res.status(200).send(massages.successInUpdate);
+        const saveData = await user.save();
+        const { userName, email } = saveData
+        const data = {
+            userName, email,
+        }
+        return useSuccessResponse(res, massages.successInUpdat, data, 200)
 
 
     }
@@ -136,12 +154,14 @@ const deleteHandler = async (req, res) => {
         const user = await userInfo.findOne({ _id: id })
         user.isdeleted = true;
         user.isActive = false;
+        const { email, userName } = user
+        const data = { email, userName }
         await user.save();
-        res.status(200).send(massages.successInDelete);
+        useSuccessResponse(res, massages.successInDelete, data, 200)
+
     }
     catch (err) {
-        res.json({ message: err.message })
-
+        useErrorResponse(res, 'internel server error', 500)
     }
 }
 const emailValidator = async (req, res) => {
@@ -162,10 +182,14 @@ const emailValidator = async (req, res) => {
             user.OTP = null;
             await user.save();
             console.log(user.isActive)
-            res.status(200).json(data);
+            return useSuccessResponse(res, 'successfully login and varification', data, 200)
+
+        }
+        else {
+            useErrorResponse(res, 'invalid data', 400)
         }
     } catch (err) {
-        res.json(err.message)
+        useErrorResponse(res, 'error', 500)
     }
 }
 
@@ -177,17 +201,20 @@ const changePassword = async (req, res) => {
         const user = await userInfo.findOne({ _id: id });
         console.log(id)
         if (!user) {
-            return res.status(404).json({ message: massages.userNotfond })
+            return useSuccessResponse(res, massages.userNotfond, id, 404)
         }
         if (await bcrypt.compare(password, user.password)) {
             const encryptedpassword = await bcrypt.hash(newPassword, 10)
             user.password = encryptedpassword;
             await user.save();
-            return res.status(200).send(massages.successInchange);
+            return useSuccessResponse(res, massages.successInchange, 200)
+
         }
-        return res.send(massages.errorInReset)
+        return useErrorResponse(res, massages.errorInReset, 404)
+
     } catch (err) {
-        res.json({ error: err })
+        useErrorResponse(res, 'error', 500)
+
     }
 }
 
@@ -198,16 +225,18 @@ const forgetPassword = async (req, res) => {
 
         if (user) {
             const token = crypto.randomBytes(15).toString('hex');
-            const url = 'http://ww.abc.com/users/' + token;
+            const url = 'http://localhost:3000/resetPassword/' + token;
             user.OTP = token;
             await user.save();
             const subject = 'Forgot your password'
             await emailsender(email, url, subject);
-
-            res.status(200).json({ url, token });
+            return useSuccessResponse(res, 'varification', '', 200)
         }
+        return useErrorResponse(res, massages.userNotfond, 404)
+
     } catch (err) {
-        return res.json({ message: err.message })
+
+        useErrorResponse(res, 'error', 500)
     }
 }
 
@@ -216,19 +245,25 @@ const resetThePassword = async (req, res) => {
     try {
         const { newPassword, token } = req.body;
         console.log(token);
-        const user = await userInfo.findOne({ OTP: token });
-        if (user) {
-            console.log(user)
-            const encryptedpassword = await bcrypt.hash(newPassword, 10)
-            user.password = encryptedpassword;
-            user.OTP = null;
-            await user.save();
-            return res.status(200).send(massages.successInReset);
-
+        if (token) {
+            const user = await userInfo.findOne({ OTP: token });
+            if (user) {
+                console.log(user)
+                const encryptedpassword = await bcrypt.hash(newPassword, 10)
+                user.password = encryptedpassword;
+                user.OTP = null;
+                await user.save();
+                return useSuccessResponse(res, massages.successInReset, '', 200)
+            }
+            useErrorResponse(res, massages.tokenNotExist, 404)
         }
-        res.status(404).send(massages.tokenNotExist)
+        else
+            useErrorResponse(res, massages.tokenNotExist, 404)
     } catch (err) {
-        res.json({ message: err.message })
+        useErrorResponse(res, 'error', 500)
+        console.log(err
+        );
+
     }
 
 }

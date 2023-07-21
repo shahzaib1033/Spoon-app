@@ -19,19 +19,20 @@ const skuschema = new mongoose.Schema({
 const variantSchema = new mongoose.Schema({
     name: {
         type: String,
-        required : true
+        required: true
     },
     skus: {
-        type:[skuschema],
-        required : true
+        type: [skuschema],
+        required: true
     }
-    
+
 })
+
 
 const productSchema = new mongoose.Schema({
     productImage: {
         type: String,
-        required : true
+        required: true
     },
     name: {
         type: String,
@@ -41,7 +42,7 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-   
+
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
@@ -52,13 +53,19 @@ const productSchema = new mongoose.Schema({
         ref: 'Subcategory',
         required: true
     },
+    rating: {
+        type: Number,
+        allowNull: false,
+        default: 0
+    },
+
     variants:
     {
         type: [variantSchema],
         required: true
-        
-         }
-      ,
+
+    }
+    ,
 });
 
 const Product = mongoose.model('Product', productSchema);

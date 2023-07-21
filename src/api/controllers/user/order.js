@@ -2,12 +2,12 @@ const OrderModel = require('../../models/user/order')
 const Product = require('../../models/admin/products/products')
 const AddToCart = require('../../models/user/cart')
 // const { update } = require('./userProfile')
-
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response')
 const ordering = async (req, res) => {
     try {
         const { _id } = req.user
 
-        const { cartId, paymentMethod, orderStatus } = req.body
+        const { cartId, paymentMethod, orderStatus, address } = req.body
         const existeCart = await AddToCart.findOne({ _id: cartId })
         if (existeCart) {
 
@@ -15,10 +15,145 @@ const ordering = async (req, res) => {
                 userId: _id,
                 products: existeCart.products,
                 paymentMethod: paymentMethod,
-                orderStatus: orderStatus
+                orderStatus: orderStatus,
+                address: address
             })
-            const saveorder = order.save();
-            // for (let i = 0; i < existeCart.products.length; i++) {
+            const saveorder = await order.save();
+
+            for (const cartProduct of existeCart.products) {
+                await Product.updateMany(
+                    {
+                        variants: {
+                            $elemMatch: {
+                                name: cartProduct.color,
+                                skus: {
+                                    $elemMatch: {
+                                        size: cartProduct.size,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    {
+                        $inc: {
+                            "variants.$[variant].skus.$[sku].quantity": -cartProduct.quantity,
+                        },
+                    },
+                    {
+                        arrayFilters: [
+                            { "variant.name": cartProduct.color },
+                            { "sku.size": cartProduct.size },
+                        ],
+                    }
+                );
+            }
+
+
+
+            // const variant = product.variants.find((v) => v.name === cartProduct.color);
+            // if (variant) {
+            //     const sku = variant.skus.find((s) => s.size === cartProduct.size);
+            //     if (sku) {
+            //         const updatedQuantity = sku.quantity - cartProduct.quantity;
+            //         sku.quantity = updatedQuantity;
+
+            // try {
+
+            // } catch (error) {
+            //     // Handle database save error
+            //     console.error(`Error updating product: ${error}`);
+            //     // Implement rollback if necessary
+            // }
+            // }
+            // }
+
+
+
+
+
+            // if (saveorder && saveData) {
+            await AddToCart.findOneAndDelete({ _id: cartId })
+                .then((deletedCart) => {
+                    if (deletedCart) {
+                        console.log('cart deleted')
+                    } else {
+                        console.log('not fond the Cart')
+                    }
+                }).catch((error) => {
+                    console.log('Error in deleting cart checkOut the Problem:', error);
+                });
+            useSuccessResponse(res, 'order successfully done', saveorder, 200)
+            // }
+            // else {
+            //     res.status(200).send('inner error');
+            // }
+        } else {
+
+            useErrorResponse(res, 'cart not found ',404)
+            // res.status(404).send('')
+        }
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+const orderStatus = async (req, res) => {
+    try {
+        const userId = req.user._id
+        const { orderStatus, orderId } = req.body
+        const orderDetails = await OrderModel.findOne({ _id: orderId })
+        if (orderDetails) {
+            orderDetails.status = orderStatus || orderDetails.status
+            const saveData = await orderDetails.save();
+            if (saveData) {
+                return res.status(200).send('order Status successfully UPDATED')
+            } else {
+                return res.send('any internal issue')
+
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ massage: 'error', error: error })
+    }
+}
+const getOrder = async (req, res) => {
+    try {
+        const { page, pageSize, skip } = req.query;
+
+        const userId = req.user._id
+        const orderDetails = await OrderModel.find({ userId }).skip(skip).limit(pageSize);
+        if (orderDetails) {
+            return res.status(200).json({ massage: 'order Status successfully UPDATED', orderDetails, page })
+        } else {
+            return res.send('any internal issue')
+
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ massage: 'error', error: error })
+    }
+}
+module.exports = {
+    ordering,
+    orderStatus,
+    getOrder
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Assuming existeCart and Product model are defined
+// for (let i = 0; i < existeCart.products.length; i++) {
             //     const ProductId = existeCart.products[i].ProductId
             //     const product = await Product.findOne({ _id: ProductId })
             //     for (let j = 0; j < product.variants.length; j++) {
@@ -39,87 +174,5 @@ const ordering = async (req, res) => {
             //         }
             //     }
             // }
-            for (const cartProduct of existeCart.products) {
-                const product = await Product.findOne({ _id: cartProduct.ProductId });
 
-                const variant = product.variants.find((v) => v.name === cartProduct.color);
-                if (variant) {
-                    const sku = variant.skus.find((s) => s.size === cartProduct.size);
-                    if (sku) {
-                        const updatedQuantity = sku.quantity - cartProduct.quantity;
-                        sku.quantity = updatedQuantity;
-
-                        try {
-                            await product.save();
-                        } catch (error) {
-                            // Handle database save error
-                            console.error(`Error updating product: ${error}`);
-                            // Implement rollback if necessary
-                        }
-                    }
-                }
-            }
-
-
-
-
-            // if (saveorder && saveData) {
-            await AddToCart.findOneAndDelete({ _id: cartId })
-                .then((deletedCart) => {
-                    if (deletedCart) {
-                        console.log('cart deleted')
-                    } else {
-                        console.log('not fond the Cart')
-                    }
-                }).catch((error) => {
-                    console.log('Error in deleting cart checkOut the Problem:', error);
-                });
-            res.status(200).send('order successfully done');
-            // }
-            // else {
-            //     res.status(200).send('inner error');
-            // }
-        } else {
-            res.status(404).send('cart not found ')
-        }
-    }
-    catch (err) {
-        console.log(err)
-    }
-}
-const orderStatus = async (req, res) => {
-    try {
-        const userId = req.user._id
-        const { orderStatus } = req.body
-        const orderDetails = await OrderModel.findOne(userId)
-        if (orderDetails) {
-            orderDetails.orderStatus = orderStatus || orderDetails.AddToCartStatus
-            const saveData = await orderDetails.save();
-            if (saveData) {
-                return res.status(200).send('order Status successfully UPDATED')
-            }
-        }
-    } catch (error) {
-
-    }
-}
-
-module.exports = {
-    ordering,
-    orderStatus
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Assuming existeCart and Product model are defined
 

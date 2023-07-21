@@ -1,7 +1,7 @@
 const express = require('express');
 const Handler = require('../../controllers/user/user');
 const { checktokenValidation } = require('../../../config/methods/tokenValidation');
-
+const { giveReview, showReviews } = require('../../controllers/user/reviews')
 
 const {
     signUpHandler,
@@ -19,8 +19,10 @@ const router = express.Router();
 
 router.post('/signup', signUpHandler)
     .post('/signin', signinHandler)
-    .post('/verfication', emailValidator)
+    .post('/verification', emailValidator)
     .post('/changePassword', checktokenValidation, changePassword)
+    .post('/giveReview', checktokenValidation, giveReview)
+    .get('/showReview', checktokenValidation, showReviews)
     .put('/forgetpassword', forgetPassword)
     .put('/resendOTP', resendpassword)
     .put('/resetThePassword', resetThePassword)

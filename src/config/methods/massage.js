@@ -6,7 +6,7 @@ const massages = {
     createdNowVerify: "Your are registered now verify with  verification code",
     unexpectedError: "something went wrong with request please try again",
     verifyFirst: "verify first with verification code you have on 'mail' acount your account",
-    successInLogin: "verification id done successfully now your log in successfull ",
+    successInLogin: "log in successfull ",
     successinDelete: "successfull delete your account",
     successInUpdate: "successfull update your account",
     verified: "verification  done successfully \n log in successfully",
@@ -15,6 +15,7 @@ const massages = {
     errorInReset: "unexpected error occurred when trying to reset your password",
     passwordResetSuccess: "password reset success now you can login with verification code",
     tokenNotExist: "token NOt found or expired, please try again ",
-    successInDelete: "successfull delete your account"
+    successInDelete: "successfull delete your account",
+     sentcode: "verification code successfully sent to user "
 }
 module.exports = massages;

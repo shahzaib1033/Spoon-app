@@ -3,6 +3,7 @@ const userInfo = require('../../models/user/userRegister.js');
 const Profile = require('../../models/user/userProfile.js');
 const massages = require('../../../config/methods/massage.js');
 const userProfile = require('../../models/user/userProfile.js');
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response.js');
 require("dotenv").config();
 
 
@@ -82,23 +83,26 @@ const showProfile = async (req, res) => {
         }
         res.status(200).json(data)
     } catch (error) {
-        console.log(error)
+        useErrorResponse(res, error.massage, 500)
+
     }
 }
 const upload = async (req, res) => {
     try {
         const imagePath = req.imagePath;
         if (!imagePath) {
-            return res.status(404).send("image not UPLOADED");
-        }
+            useSuccessResponse(res, 'empty feild', 404)
+     }
         const host = process.env.HOST
 
         console.log(host)
         const ImagePath = host + "" + imagePath;
         console.log(`Uploading ${ImagePath}`);
-        res.status(201).json({ image: ImagePath })
+        useSuccessResponse(res,'success',imagePath,201)
+        
     } catch (error) {
         console.log(error)
+        useErrorResponse(res,error.massage,404)
     }
 }
 module.exports = {

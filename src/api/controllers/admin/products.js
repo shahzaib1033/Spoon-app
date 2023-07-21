@@ -1,3 +1,4 @@
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response');
 const { Category, Subcategory } = require('../../models/admin/products/productCategory');
 const productModel = require('../../models/admin/products/products');
 
@@ -16,8 +17,8 @@ const createProduct = async (req, res) => {
             const exists = await productModel.findOne({ name: name })
             // console.log("Main Category " + category)
             // console.log("product " + exists)
-
-            if (!exists && category && SubCategory) {
+                // && category && SubCategory
+            if (!exists ) {
                 console.log("Sub Category " + SubCategory)
                 const productData = await productModel.create({
                     productImage: productImage,
@@ -71,7 +72,6 @@ const getProduct = async (req, res) => {
         //         });
         // }
         console.log(req.query);
-        const { sizes, colors, variants } = req.query
         const ExistingProducts = await productModel.find().populate('category').populate('subcategory').skip(skip).limit(pageSize);
 
         if (ExistingProducts) {
@@ -182,54 +182,54 @@ const subcategoryFilter = async (req, res) => {
         return res.status(200).json({ productofsubcategory, page });
     }
     else {
+        use
         return res.status().send('No subcategories found')
     }
 }
 const filteredProducts = async (req, res) => {
-    const { _id, isAdmin } = req.user
-
-    const { page, pageSize, skip, size, color } = req.query;
-    const Product = await productModel.find({
-        variants: {
-            $elemMatch: {
-                name: color,
-                skus: {
-                    $elemMatch: { size: size }
-                }
+    try {
+        const { _id, isAdmin } = req.user
+        const { page, pageSize, skip, size, color } = req.query;
+        const Product = await productModel.find({
+            variants: {
+                $elemMatch: {
+                    name: color,
+                    skus: {
+                        $elemMatch: { size: size }
+                    }
+                },
             },
-        },
-    });
+        }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
+
+ 
+        // const products = Product.find({
+        //     variants: {
+        //         $elemMatch: {
+        //             name: color,
+        //             sku: {
+        //                 $elemMatch: { size: size }
+        //             }
+        //         },
+        //     },
+        // })
+        // const products = Product.find({
+        //     variants: {
+        //         $elemMatch: {
+        //             name: color,
+        //             sku: {
+        //                 $elemMatch: { size: size }
+        //             }
+        //         },
+        //     },
+        // })
+        // .populate('category').populate('subcategory').skip(skip).limit(pageSize);
+
     
-    // const products = Product.find({
-    //     variants: {
-    //         $elemMatch: {
-    //             name: color,
-    //             sku: {
-    //                 $elemMatch: { size: size }
-    //             }
-    //         },
-    //     },
-    // })
-    // const products = Product.find({
-    //     variants: {
-    //         $elemMatch: {
-    //             name: color,
-    //             sku: {
-    //                 $elemMatch: { size: size }
-    //             }
-    //         },
-    //     },
-    // })
-    // .populate('category').populate('subcategory').skip(skip).limit(pageSize);
-
-
-
-    return res.status(200).json(Product)
-    // if () {
-    // }
-    // else {
-    //     return res.status(404).json('not fond')
-    // }
+        useSuccessResponse(res, success, Product, 200)
+    } catch (err) {
+        useErrorResponse(res,'error',500)
+    }
+    // if () { // } // else {//     return res.status(404).json('not fond') // }
 }
 module.exports =
 {

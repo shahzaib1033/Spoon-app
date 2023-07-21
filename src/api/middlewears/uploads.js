@@ -3,11 +3,12 @@ const multer = require('multer');
 const path = require('path');
 
 const fs = require('fs');
+const { useErrorResponse } = require('../../config/methods/response');
 const uploads = async (req, res, next) => {
     try {
 
         var fileName
-        const storage = await multer.diskStorage({
+        const storage = multer.diskStorage({
             destination: (req, file, cb) => {
                 const publicDir = path.join("", 'public');
                 const imagesDir = path.join(publicDir, 'images');
@@ -18,26 +19,30 @@ const uploads = async (req, res, next) => {
                 if (!fs.existsSync(imagesDir)) {
                     fs.mkdirSync(imagesDir);
                 }
+                console.log('i am here to upload');
+
                 cb(null, imagesDir);
             },
             filename: async (req, file, cb) => {
                 const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
                 fileName = file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop();
                 console.log(fileName);
+                console.log('i am here to upload');
 
 
                 // req.imagePath = fileName;
                 cb(null, fileName);
             },
         });
-        const upload = await multer({ storage }).single('file');
+        const upload =  multer({ storage }).single('file');
         upload(req, res, (err) => {
             if (err) {
                 console.log(err);
             }
             else {
-                let imagePath = path.join(fileName);
-                imagePath = '/images/' + imagePath
+                console.log(fileName)
+                let imagePath = '/images/' + fileName;
+
 
                 req.imagePath = imagePath,
 
@@ -47,6 +52,8 @@ const uploads = async (req, res, next) => {
     }
     catch (err) {
         console.log(err);
+        useErrorResponse(res, 'error', 404)
+
     }
 }
 

@@ -14,7 +14,8 @@ const userrouter = require('./api/routes/user/userRegister')
 const products = require('./api/routes/admin/products')
 const profileRouter = require('./api/routes/user/userProfile')
 const cartRouter = require('./api/routes/user/addCart')
-const orderRouter = require('./api/routes/user/order')  
+const orderRouter = require('./api/routes/user/order')
+const favoriteRouter = require('./api/routes/user/favorite')
 require("dotenv").config();
 require('./config/DB/connection')
 // const { version } = require('env');
@@ -31,6 +32,7 @@ app.use('/user', userrouter)
 app.use('/user/profile', profileRouter)
 app.use('/user/Cart', cartRouter)
 app.use('/user/order', orderRouter)
+app.use('/user/favorite', favoriteRouter)
 app.use('/admin/add', products)
 app.use("/images", express.static(path.join("", "public/images")))
 
@@ -42,6 +44,6 @@ app.get('/', function (req, res) {
 
 const port = process.env.PORT || 8000
 
-app.listen(3000, () => {
-    console.log('app is runing at ', 3000)
+app.listen(8080, () => {
+    console.log('app is runing at ', 8080)
 })
