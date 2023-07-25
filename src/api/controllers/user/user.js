@@ -88,7 +88,7 @@ const signinHandler = async (req, res) => {
         const { userName } = await user
         if (!user.isActive) {
             console.log(massages.verifyFirst);
-            return useErrorResponse(res, 401, massages.verifyFirst)
+            return useErrorResponse(res,  massages.verifyFirst,401)
 
         }
 
@@ -105,14 +105,14 @@ const signinHandler = async (req, res) => {
         else {
             console.log(massages.invalidData);
 
-            return useErrorResponse(res, 303, massages.invalidData)
+            return useErrorResponse(res, massages.invalidData,303)
 
         }
     }
 
     catch (err) {
         console.log(err);
-     return   useErrorResponse(res, 401, massages.verifyFirst)
+     return   useErrorResponse(res,  massages.verifyFirst,401)
 
     }
 
