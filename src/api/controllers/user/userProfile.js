@@ -15,7 +15,7 @@ const create = async (req, res) => {
         const user = await userInfo.findOne({ _id: id });
         if (!user || !id) {
             console.log(user, id)
-            return res.status(404).send(massages.userNotfond)
+            useErrorResponse(res, massages.userNotfond, 404)
         }
         const { profileImage, fullName, description, age, gender, phoneNo, hobbies, address } = req.body
 
@@ -33,10 +33,11 @@ const create = async (req, res) => {
 
         });
 
-        saveData.save();
-        res.status(200).send("profile successfully created")
+        const data = saveData.save();
+        useSuccessResponse(res, massages.createdProfile, data, 201)
+
     } catch (err) {
-        return res.json({ error: err })
+        useErrorResponse(res, massages.internalError, 500)
     }
 }
 const update = async (req, res) => {
@@ -60,20 +61,22 @@ const update = async (req, res) => {
             const data = {
                 ProfileImage, fullName, description, age, gender, phoneNo, hobbies, address
             }
-            return res.status(200).json({ data: data })
+            useSuccessResponse(res, massages.successInUpdate, data, 200)
         }
-        return res.status(200).send(massages.userProfileNotfond);
+        useErrorResponse(res, massages.userProfileNotfond, 404)
     } catch (error) {
         console.log(error);
+        useErrorResponse(res, massages.internalError, 500)
+
     }
 }
 const showProfile = async (req, res) => {
     try {
         const id = req.user._id;
         const userProfile = await Profile.findOne({ userId: id })
-        // if (!userProfile) {
-        //     return res.status(404).send(massages.userProfileNotfond)
-        // }
+        if (!userProfile) {
+            useErrorResponse(res, massages.userProfileNotfond, 404)
+        }
 
 
         const { profileImage, fullName, description, age, gender, phoneNo, hobbies, address } = await userProfile
@@ -81,9 +84,10 @@ const showProfile = async (req, res) => {
         const data = {
             ProfileImage, fullName, description, age, gender, phoneNo, hobbies, address
         }
-        res.status(200).json(data)
+        useSuccessResponse(res, massages.success, data, 200)
+
     } catch (error) {
-        useErrorResponse(res, error.massage, 500)
+        useErrorResponse(res, massage.internalError, 500)
 
     }
 }
@@ -92,17 +96,17 @@ const upload = async (req, res) => {
         const imagePath = req.imagePath;
         if (!imagePath) {
             useSuccessResponse(res, 'empty feild', 404)
-     }
+        }
         const host = process.env.HOST
 
         console.log(host)
         const ImagePath = host + "" + imagePath;
         console.log(`Uploading ${ImagePath}`);
-        useSuccessResponse(res,'success',imagePath,201)
-        
+        useSuccessResponse(res, 'success', imagePath, 201)
+
     } catch (error) {
         console.log(error)
-        useErrorResponse(res,error.massage,404)
+        useErrorResponse(res, massages.internalError, 500)
     }
 }
 module.exports = {

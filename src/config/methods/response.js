@@ -14,7 +14,7 @@ const useErrorResponse = async (res, message, statusCode) => {
     }
     )
 }
-module.exports = {
+ module.exports = {
     useErrorResponse,
     useSuccessResponse
 }

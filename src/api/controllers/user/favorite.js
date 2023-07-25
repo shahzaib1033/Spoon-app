@@ -1,9 +1,11 @@
 const Favorite = require('../../models/user/favorite');
 const productModel = require('../../models/admin/products/products');
+const { useErrorResponse, useSuccessResponse } = require('../../../config/methods/response');
+const massages = require('../../../config/methods/massage');
 
 
 const addToFavorite = async (req, res) => {
-    const { _id } = req.user;
+    try{const { _id } = req.user;
     const { productId } = req.body;
     const foundproduct = await Favorite.findOne({ productId: productId });
 
@@ -17,9 +19,8 @@ const addToFavorite = async (req, res) => {
         //     const data = await modelExists.save();
         //     return res.status(200).json({ message: 'pushed', data });
         // } else {
-        return res.json({
-            message: 'already exists', foundproduct
-        });
+        return useErrorResponse(res, massages.alreadyexistings, 403)
+
     }
 
     const favorite = await Favorite.create({
@@ -30,13 +31,18 @@ const addToFavorite = async (req, res) => {
     const saveData = await favorite.save();
 
     if (saveData) {
-        return res.status(201).json({ message: 'favorite added', saveData });
+        return useSuccessResponse(res, massages.success, saveData, 200)
+
     } else {
-        return res.send('unable to add');
+        return useErrorResponse(res,massages.unabletoadd)
+        }
+    } catch (err) {
+        console.log(err);
+        return useErrorResponse(res,massages.internalError,500)
     }
 };
 const getFavorite = async (req, res) => {
-    const { _id } = req.user
+    try{const { _id } = req.user
     var data = [];
     const modelExsist = await Favorite.find({ userId: _id })
     if (modelExsist) {
@@ -49,15 +55,25 @@ const getFavorite = async (req, res) => {
         //     const product = modelExists.products.find(
         //         (product) => product.productId.toString() === productId
         //     );
-        return res.status(200).json({ message: 'FAVORITE PRODUCTS ARE', data })
+        return useSuccessResponse(res,massages.success,data,200)
 
+    } else {
+        return useErrorResponse(res,massages.userNotfondfavorite,404 )
+        }
+    } catch (err) {
+        console.log(err);
+        return useErrorResponse(res, massages.internalError,500)
     }
 }
 const removeFavorite = async (req, res) => {
-    const { _id } = req.user
+   try{ const { _id } = req.user
     const { productId } = req.body
-    const deleted = await Favorite.findOneAndDelete({ userId: _id  , productId: productId })
-    return res.status(200).json({ message: 'removed', deleted })
+    const deleted = await Favorite.findOneAndDelete({ userId: _id, productId: productId })
+    return useSuccessResponse(res,massages.successInDelete,200)
+    } catch (err){
+       console.log(err);
+       return useErrorResponse( res,massages.internalError,500)
+    }
 }
 module.exports = {
     addToFavorite,

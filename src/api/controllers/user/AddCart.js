@@ -1,5 +1,7 @@
 
 
+const massages = require('../../../config/methods/massage');
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response');
 const AddToCart = require('../../models/user/cart');
 
 const AddCart = async (req, res) => {
@@ -23,12 +25,15 @@ const AddCart = async (req, res) => {
 
             const data = await cartexist.save();
             if (data)
-                res.status(201).json({ message: 'product added to cart successfully', data });
+                return useSuccessResponse(res, massages.successInAddcart, data, 201)
+
             else
-                res.send("intrenal error of Saver")
+                return useErrorResponse(res, massages.internalError, 500)
+
         }
         else {
-            res.status(403).json({ massage: "the product already exists in cart" })
+            return useErrorResponse(res, massages.alreadyexistings, 403)
+
         }
 
     } else {
@@ -37,9 +42,9 @@ const AddCart = async (req, res) => {
         const cart = await AddToCart.create({ userId: _id, products: products, totalAmount: products.price })
         cart.save();
         if (cart) {
-            return res.status(201).json({ message: "created cart successfully", cart });
+            return useSuccessResponse(res, massages.successInAddcart, data, 201)
         }
-        return res.send("intrenal error of Saver")
+        return useErrorResponse(res, massages.internalError, 500)
     }
 }
 const deleteCartProduct = async (req, res) => {
@@ -67,14 +72,17 @@ const deleteCartProduct = async (req, res) => {
                 cartExist.totalAmount = Number((cartExist.totalAmount - product.price).toFixed(2));
 
                 cartExist.save();
-                return res.status(200).json({ message: 'item has been deleted' });
+                return useSuccessResponse(res, massages.successInDelete, cartExist, 200)
+
+
             })
             .catch(error => {
-                return res.status(400).json({ message: 'Error removing item from cart:', error });
+                return useErrorResponse(res, massages.internalError, 500)
+
             });
     } catch (err) {
         console.error(err);
-        return res.status(500).send("An error occurred while deleting the cart product");
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 
@@ -88,13 +96,20 @@ const getCartProducts = async (req, res) => {
             console.log(exists);
             const products = exists.products
             const totalPrice = exists.totalAmount
-            return res.status(200).json({ products, totalPrice });
+            const data = {
+                products,
+                totalPrice
+            }
+            return useSuccessResponse(res, massages.success, data, 201)
+
         }
         else {
-            return res.status(404).send("cart not found");
+            return useErrorResponse(res, massages.internalError, 500)
         }
     } catch (err) {
         console.log(err)
+        return useErrorResponse(res, massages.internalError, 500)
+
     }
 }
 

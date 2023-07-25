@@ -3,6 +3,7 @@ const Product = require('../../models/admin/products/products')
 const AddToCart = require('../../models/user/cart')
 // const { update } = require('./userProfile')
 const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response')
+const massages = require('../../../config/methods/massage')
 const ordering = async (req, res) => {
     try {
         const { _id } = req.user
@@ -82,19 +83,20 @@ const ordering = async (req, res) => {
                 }).catch((error) => {
                     console.log('Error in deleting cart checkOut the Problem:', error);
                 });
-            useSuccessResponse(res, 'order successfully done', saveorder, 200)
+            return useSuccessResponse(res, massages.successInOrder, saveorder, 200)
             // }
             // else {
             //     res.status(200).send('inner error');
             // }
         } else {
 
-            useErrorResponse(res, 'cart not found ',404)
+            return useErrorResponse(res, 'cart not found ', 404)
             // res.status(404).send('')
         }
     }
     catch (err) {
         console.log(err)
+        return useErrorResponse(res, massages.unexpectedError, 500)
     }
 }
 const orderStatus = async (req, res) => {
@@ -106,15 +108,16 @@ const orderStatus = async (req, res) => {
             orderDetails.status = orderStatus || orderDetails.status
             const saveData = await orderDetails.save();
             if (saveData) {
-                return res.status(200).send('order Status successfully UPDATED')
-            } else {
-                return res.send('any internal issue')
+                return useSuccessResponse(res, massages.successInUpdateOrder, saveData, 200)
 
+            } else {
+                return useErrorResponse(res, massages.internalError, 500)
             }
         }
     } catch (error) {
         console.log(error)
-        return res.json({ massage: 'error', error: error })
+        return useErrorResponse(res, massages.internalError, 500)
+
     }
 }
 const getOrder = async (req, res) => {
@@ -124,14 +127,16 @@ const getOrder = async (req, res) => {
         const userId = req.user._id
         const orderDetails = await OrderModel.find({ userId }).skip(skip).limit(pageSize);
         if (orderDetails) {
-            return res.status(200).json({ massage: 'order Status successfully UPDATED', orderDetails, page })
+            return useSuccessResponse(res, massages.success, orderDetails, 200)
+
         } else {
-            return res.send('any internal issue')
+            return useErrorResponse(res, massages.internalError, 500)
 
         }
     } catch (error) {
         console.log(error)
-        return res.json({ massage: 'error', error: error })
+        return useErrorResponse(res, massages.internalError, 500)
+
     }
 }
 module.exports = {

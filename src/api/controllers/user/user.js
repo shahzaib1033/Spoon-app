@@ -18,7 +18,7 @@ const signUpHandler = async (req, res) => {
 
         const oldUser = await userInfo.findOne({ email })
         if (oldUser) {
-            useErrorResponse(res, massages.alreadyexisting, 403)
+           return useErrorResponse(res, massages.alreadyexisting, 403)
         }
         const encryptedpassword = await bcrypt.hash(password, 10)
         const saveData = await userInfo.create({
@@ -30,27 +30,24 @@ const signUpHandler = async (req, res) => {
         });
 
 
-        // if (saveData) {
-        //     const { _id, documents } = await saveData
-        //     console.log(documents)
-        // }
-
-        const code = await generatePassword(4)
-        console.log(code)
-        saveData.OTP = code;
-        await saveData.save();
-        console.log(saveData.OTP)
-        const subject = "User Verification"
-        await emailsender(email, code, subject);
-
-
         if (saveData) {
+            const code = await generatePassword(4)
+            console.log(code)
+            saveData.OTP = code;
+            await saveData.save();
+            console.log(saveData.OTP)
+            const subject = "User Verification"
+            await emailsender(email, code, subject);
+
+
             // imgHandler.uploadImages(req, res, _id)
-            useSuccessResponse(res, massages.createdNowVerify, saveData.email, 200)
+           return useSuccessResponse(res, massages.createdNowVerify, saveData.email, 200)
         }
+         return useErrorResponse(res, massages.unexpectedError, 500)
+
     } catch (err) {
         console.log(err)
-        useErrorResponse(res, massages.unexpectedError, 500)
+        return useErrorResponse(res, massages.unexpectedError, 500)
 
     }
 
@@ -65,7 +62,7 @@ const resendpassword = async (req, res) => {
 
         // user.forgetpassword = code;
         if (user) {
-            const code = await generatePassword(6)
+            const code = generatePassword(6)
             console.log(code)
             user.OTP = code;
             await user.save();
@@ -115,7 +112,7 @@ const signinHandler = async (req, res) => {
 
     catch (err) {
         console.log(err);
-        useErrorResponse(res, 401, massages.verifyFirst)
+     return   useErrorResponse(res, 401, massages.verifyFirst)
 
     }
 
@@ -157,11 +154,11 @@ const deleteHandler = async (req, res) => {
         const { email, userName } = user
         const data = { email, userName }
         await user.save();
-        useSuccessResponse(res, massages.successInDelete, data, 200)
+       return useSuccessResponse(res, massages.successInDelete, data, 200)
 
     }
     catch (err) {
-        useErrorResponse(res, 'internel server error', 500)
+        return useErrorResponse(res, 'internel server error', 500)
     }
 }
 const emailValidator = async (req, res) => {
@@ -170,10 +167,10 @@ const emailValidator = async (req, res) => {
         const { OTP } = req.body
         const user = await userInfo.findOne({ OTP })
         if (!user) {
-            res.send(massages.userNotfond, OTP)
+            useErrorResponse(res,massages.userNotfond,404)
         }
         if (user.OTP === OTP) {
-            const tokenVersion = await generatePassword(9);
+            const tokenVersion =  generatePassword(9);
             const tokens = jwt.sign({ _id: user.id, isAdmin: user.isAdmin, tokenVersion: tokenVersion }, process.env.SECRET);
             // console.log(token, massages.successInLogin)
             const { userName, lastName, email, documents } = await user
@@ -186,10 +183,10 @@ const emailValidator = async (req, res) => {
 
         }
         else {
-            useErrorResponse(res, 'invalid data', 400)
+           return useErrorResponse(res, 'invalid data', 400)
         }
     } catch (err) {
-        useErrorResponse(res, 'error', 500)
+        return useErrorResponse(res, 'error', 500)
     }
 }
 
@@ -236,7 +233,7 @@ const forgetPassword = async (req, res) => {
 
     } catch (err) {
 
-        useErrorResponse(res, 'error', 500)
+    return    useErrorResponse(res, 'error', 500)
     }
 }
 
@@ -255,14 +252,13 @@ const resetThePassword = async (req, res) => {
                 await user.save();
                 return useSuccessResponse(res, massages.successInReset, '', 200)
             }
-            useErrorResponse(res, massages.tokenNotExist, 404)
+          return  useErrorResponse(res, massages.tokenNotExist, 404)
         }
         else
-            useErrorResponse(res, massages.tokenNotExist, 404)
+          return  useErrorResponse(res, massages.tokenNotExist, 404)
     } catch (err) {
-        useErrorResponse(res, 'error', 500)
-        console.log(err
-        );
+        console.log(err        );
+      return useErrorResponse(res, 'error', 500)
 
     }
 

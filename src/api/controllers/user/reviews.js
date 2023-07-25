@@ -1,6 +1,9 @@
 const Review = require('../../models/user/reviews')
 const productModel = require('../../models/admin/products/products')
+const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response')
+
 const OrderModel = require('../../models/user/order')
+const massages = require('../../../config/methods/massage')
 
 
 const giveReview = async (req, res) => {
@@ -33,18 +36,19 @@ const giveReview = async (req, res) => {
                         product.rating = sum / length
                         const Data = await product.save();
                         if (Data) {
-                            return res.status(200).json({ saveData, ProductRating: Data.rating })
+                            return useSuccessResponse(res, massages.success, data.rating, 200)
                         } else {
-                            return res.json({ massage: 'internel error' })
+                            return useErrorResponse(res, massages.internalError, 500)
                         }
                     }
                     else {
-                        return res.json({ message: 'internal error' })
+                        return useErrorResponse(res, massages.internalError, 500)
                     }
                 }
                 catch (error) {
                     console.log(error)
-                    return res.json({ message: 'error', error: error })
+
+                    return res.json({ massage: massages.internalError, error: error })
                 }
             } else {
 
@@ -65,17 +69,19 @@ const giveReview = async (req, res) => {
 
                     const Data = await product.save();
                     if (Data) {
-                        return res.status(200).json({ foundItem, ProductRating: Data.rating })
+                        return useSuccessResponse(res, massages.success, Data.rating, 200)
                     } else {
-                        return res.json({ massage: 'internel error' })
+                        return useErrorResponse(res, massages.internalError, 500)
+
                     }
                 }
             }
         } else {
-            return res.status(404).json({ massage: 'this prodcut is not ordered until the order you are unable to rate it' })
+            return useErrorResponse(res, massages.unorderedReveiw, 404)
         }
     } catch (error) {
         console.log(error);
+        return useErrorResponse(res, massages.internalError, 500)
     }
 }
 
@@ -84,10 +90,11 @@ const showReviews = async (req, res) => {
         const { _id } = req.user
         const { productId, skip, pageSize, page } = req.query
         const reviews = await Review.find({ productId }).populate('userId').skip(skip).limit(pageSize);
-        return res.status(200).json({ massage: 'reviews are', reviews, page })
+     return useSuccessResponse(res,massages.success,reviews,200)
     } catch (err) {
         console.log(err)
-        res.json({ massage: 'error', error: err })
+        return useErrorResponse(res,massages.unexpectedError,500)
+        
     }
 }
 
