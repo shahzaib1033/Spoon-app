@@ -95,18 +95,18 @@ const upload = async (req, res) => {
     try {
         const imagePath = req.imagePath;
         if (!imagePath) {
-            useSuccessResponse(res, 'empty feild', 404)
+         return   useSuccessResponse(res, 'empty feild', 404)
         }
         const host = process.env.HOST
 
         console.log(host)
         const ImagePath = host + "" + imagePath;
         console.log(`Uploading ${ImagePath}`);
-        useSuccessResponse(res, 'success', imagePath, 201)
+      return  useSuccessResponse(res, 'success', imagePath, 201)
 
     } catch (error) {
         console.log(error)
-        useErrorResponse(res, massages.internalError, 500)
+        return useErrorResponse(res, massages.internalError, 500)
     }
 }
 module.exports = {

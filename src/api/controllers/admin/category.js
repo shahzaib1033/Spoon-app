@@ -22,7 +22,7 @@ const createCategory = async (req, res) => {
             )
             const data = savedata.save();
             if (data) {
-                return useSuccessResponse(res, massages.success, data, 201)
+                return useSuccessResponse(res, massages.success, savedata, 201)
 
             }
         }
@@ -91,8 +91,8 @@ const readsingleCategory = async (req, res) => {
 const readAllCategory = async (req, res) => {
 
     try {
-        const categorys = await Category.find(req.query)
-        return useSuccessResponse(res,massages.success,categorys)
+        const categorys = await Category.find({})
+        return useSuccessResponse(res, massages.success, categorys, 200)
     } catch (error) {
         console.log(error)
         return useErrorResponse(res, massages.internalError, 500)

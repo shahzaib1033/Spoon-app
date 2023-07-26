@@ -18,7 +18,7 @@ const signUpHandler = async (req, res) => {
 
         const oldUser = await userInfo.findOne({ email })
         if (oldUser) {
-           return useErrorResponse(res, massages.alreadyexisting, 403)
+            return useErrorResponse(res, massages.alreadyexisting, 403)
         }
         const encryptedpassword = await bcrypt.hash(password, 10)
         const saveData = await userInfo.create({
@@ -41,9 +41,9 @@ const signUpHandler = async (req, res) => {
 
 
             // imgHandler.uploadImages(req, res, _id)
-           return useSuccessResponse(res, massages.createdNowVerify, saveData.email, 200)
+            return useSuccessResponse(res, massages.createdNowVerify, saveData.email, 200)
         }
-         return useErrorResponse(res, massages.unexpectedError, 500)
+        return useErrorResponse(res, massages.unexpectedError, 500)
 
     } catch (err) {
         console.log(err)
@@ -75,7 +75,6 @@ const resendpassword = async (req, res) => {
         }
     } catch (err) {
         return useErrorResponse(res, 'error', 404)
-
     }
 
 }
@@ -88,8 +87,7 @@ const signinHandler = async (req, res) => {
         const { userName } = await user
         if (!user.isActive) {
             console.log(massages.verifyFirst);
-            return useErrorResponse(res,  massages.verifyFirst,401)
-
+            return useErrorResponse(res, massages.verifyFirst, 401)
         }
 
         const tokenVersion = await generatePassword(9);
@@ -99,20 +97,20 @@ const signinHandler = async (req, res) => {
             // console.log(massages.successInLogin);
             // console.log(tokens);
 
-            await useSuccessResponse(res, massages.successInLogin, data, 200)
+           return useSuccessResponse(res, massages.successInLogin, data, 200)
         }
 
         else {
-            console.log(massages.invalidData);
+        
 
-            return useErrorResponse(res, massages.invalidData,303)
+            return useErrorResponse(res, massages.invalidData, 303)
 
         }
     }
 
     catch (err) {
         console.log(err);
-     return   useErrorResponse(res,  massages.verifyFirst,401)
+        return useErrorResponse(res, massages.verifyFirst, 401)
 
     }
 
@@ -154,7 +152,7 @@ const deleteHandler = async (req, res) => {
         const { email, userName } = user
         const data = { email, userName }
         await user.save();
-       return useSuccessResponse(res, massages.successInDelete, data, 200)
+        return useSuccessResponse(res, massages.successInDelete, data, 200)
 
     }
     catch (err) {
@@ -167,10 +165,10 @@ const emailValidator = async (req, res) => {
         const { OTP } = req.body
         const user = await userInfo.findOne({ OTP })
         if (!user) {
-            useErrorResponse(res,massages.userNotfond,404)
+            useErrorResponse(res, massages.userNotfond, 404)
         }
         if (user.OTP === OTP) {
-            const tokenVersion =  generatePassword(9);
+            const tokenVersion = generatePassword(9);
             const tokens = jwt.sign({ _id: user.id, isAdmin: user.isAdmin, tokenVersion: tokenVersion }, process.env.SECRET);
             // console.log(token, massages.successInLogin)
             const { userName, lastName, email, documents } = await user
@@ -183,7 +181,7 @@ const emailValidator = async (req, res) => {
 
         }
         else {
-           return useErrorResponse(res, 'invalid data', 400)
+            return useErrorResponse(res, 'invalid data', 400)
         }
     } catch (err) {
         return useErrorResponse(res, 'error', 500)
@@ -233,7 +231,7 @@ const forgetPassword = async (req, res) => {
 
     } catch (err) {
 
-    return    useErrorResponse(res, 'error', 500)
+        return useErrorResponse(res, 'error', 500)
     }
 }
 
@@ -252,13 +250,13 @@ const resetThePassword = async (req, res) => {
                 await user.save();
                 return useSuccessResponse(res, massages.successInReset, '', 200)
             }
-          return  useErrorResponse(res, massages.tokenNotExist, 404)
+            return useErrorResponse(res, massages.tokenNotExist, 404)
         }
         else
-          return  useErrorResponse(res, massages.tokenNotExist, 404)
+            return useErrorResponse(res, massages.tokenNotExist, 404)
     } catch (err) {
-        console.log(err        );
-      return useErrorResponse(res, 'error', 500)
+        console.log(err);
+        return useErrorResponse(res, 'error', 500)
 
     }
 

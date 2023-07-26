@@ -1,3 +1,4 @@
+const massages = require('../../../config/methods/massage');
 const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response');
 const { Category, Subcategory } = require('../../models/admin/products/productCategory');
 const productModel = require('../../models/admin/products/products');
@@ -7,42 +8,44 @@ const productModel = require('../../models/admin/products/products');
 const createProduct = async (req, res) => {
 
     try {
-        const { name, description, categoryId, subcategoryId, variants, productImage } = req.body;
+        const { productName, description, category, subcategory, imagePath, variants } = req.body;
+        console.log(productName, description, category, subcategory, imagePath, variants)
         const { _id, isAdmin } = req.user;
-
         if (isAdmin == true) {
-            const category = await Category.findOne({ _id: categoryId });
+            const Categorys = await Category.findOne({ _id: category });
 
-            const SubCategory = await Subcategory.findOne({ _id: subcategoryId });
-            const exists = await productModel.findOne({ name: name })
+            const SubCategory = await Subcategory.findOne({ _id: subcategory });
+            const exists = await productModel.findOne({ name: productName })
             // console.log("Main Category " + category)
             // console.log("product " + exists)
-                // && category && SubCategory
-            if (!exists ) {
-                console.log("Sub Category " + SubCategory)
+            // && category && SubCategory
+            if (!exists && SubCategory && Categorys) {
                 const productData = await productModel.create({
-                    productImage: productImage,
-                    name: name,
+                    productImage: imagePath,
+                    name: productName,
                     description: description,
-                    category: categoryId,
-                    subcategory: subcategoryId,
+                    category: category,
+                    subcategory: subcategory,
                     variants: variants
                 });
 
-                const ProductData = await productData.save();
-                res.status(201).json({ message: "Product has been created", ProductData })
+                const data = await productData.save();
+                if(data)
+                    return useSuccessResponse(res, massages.success, productData, 201)
+                    else 
+                    return useErrorResponse(res, massages.internalError, 500)
             } else {
-                res.status(201).json({ message: "Product Already Exist" })
+                return useErrorResponse(res, massages.alreadyexistings, 404)
             }
 
 
         } else {
-            res.status(403).json({ message: "Unauthorized User is not Admin " })
+            return useErrorResponse(res, massages.unAutherized, 403)
         }
 
     } catch (error) {
         console.log(error)
-        res.status(401).json({ message: "Error Occur", error })
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }
@@ -201,7 +204,7 @@ const filteredProducts = async (req, res) => {
             },
         }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
 
- 
+
         // const products = Product.find({
         //     variants: {
         //         $elemMatch: {
@@ -224,10 +227,10 @@ const filteredProducts = async (req, res) => {
         // })
         // .populate('category').populate('subcategory').skip(skip).limit(pageSize);
 
-    
+
         useSuccessResponse(res, success, Product, 200)
     } catch (err) {
-        useErrorResponse(res,'error',500)
+        useErrorResponse(res, 'error', 500)
     }
     // if () { // } // else {//     return res.status(404).json('not fond') // }
 }

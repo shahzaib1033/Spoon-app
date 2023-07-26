@@ -1,12 +1,14 @@
+const massages = require('../../../config/methods/massage');
+const { useErrorResponse, useSuccessResponse } = require('../../../config/methods/response');
 const { Category, Subcategory } = require('../../models/admin/products/productCategory');
 
 const createsubCategory = async (req, res) => {
     try {
 
-        const { name, CategoryId } = req.body
+        const { name, categoryId } = req.body
         const { _id, isAdmin } = req.user;
         if (isAdmin == false) {
-            return res.status(403).send("unAutherized the user is not a admin")
+            return useErrorResponse(res,massages.unAutherized,403    )
         }
 
         const existingcategory = await Category.findOne({ name })
@@ -15,23 +17,24 @@ const createsubCategory = async (req, res) => {
         if (!(existingcategory)) {
             const savedata = await Subcategory.create(
                 {
-                    category: CategoryId,
+                    category: categoryId,
                     name: name
                 }
             )
-            savedata.save();
-            if (savedata) {
-                const { category, _id } =savedata
-                res.status(201).json({
-                    massage: "the subCategory created", savedata, category, _id
-                })
+           const data= savedata.save();
+            if (data) {
+                return useSuccessResponse(res,massages.createsubCategory,data,201)
+                
             }
         }
         else
-            return res.status(201).send("something went wrong/category already existing")
+            return useErrorResponse(res,massages.internalError,500)
+            
     }
     catch (err) {
         console.log(err)
+        return useErrorResponse(res, massages.internalError, 500)
+
     }
 }
 const updatesubCategory = async (req, res) => {
@@ -39,7 +42,8 @@ const updatesubCategory = async (req, res) => {
         const { name, categoryId, subCategoryId } = req.body;
         const { _id, isAdmin } = req.user;
         if (isAdmin == false) {
-            return res.status(403).send("unAutherized the user is not a admin")
+return useErrorResponse(res,massages.unAutherized,403)
+           
         }
 
         const subcategory = await Subcategory.findOne({ _id: subCategoryId })
@@ -47,18 +51,16 @@ const updatesubCategory = async (req, res) => {
             subcategory.name = name || subcategory.name,
                 subcategory.category = categoryId || subcategory.category
             subcategory.save();
-            return res.status(201).json({
-                massage: "updated successfully",
-                subcategory
-            })
-        }
+            return useSuccessResponse(res, massages.successInUpdate,subcategory,200)
+                 }
         else {
-            return res.status(201).send("category not found")
+            return useErrorResponse(res, massages.notfound,404)
 
         }
     } catch (error) {
         console.log(error)
-        return res.status(401).json({ message: "Error Occur", error })
+        
+        return useErrorResponse(res, massages.internalError, 500)
     }
 }
 const deletesubCategory = async (req, res) => {
@@ -69,20 +71,15 @@ const deletesubCategory = async (req, res) => {
         const { categoryId, subCategoryId } = req.body
         const { _id, isAdmin } = req.user;
         if (isAdmin == false) {
-            return res.status(403).send("unAutherized the user is not a admin")
+            return useErrorResponse(res, massages.unAutherized, 403)
         }
 
         const SubCategory = await Subcategory.findByIdAndDelete({ _id: subCategoryId })
-
-        return res.json({
-            massage: "deleted successfully",
-            SubCategory
-
-        });
-    }
+        return useSuccessResponse(res, massages.successInDelete,SubCategory,200)
+          }
     catch (error) {
         console.log(error)
-        return res.status(401).json({ message: "Error Occur", error })
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }
@@ -91,15 +88,14 @@ const readsinglesubCategory = async (req, res) => {
 }
 const readAllsubCategory = async (req, res) => {
     try {
-        const existingcategory = await Subcategory.find()
-        return res.json({
-            massage: " successfully",
-            existingcategory
-
-        });
+        const { category } = req.query
+        console.log(category)
+        const data = await Subcategory.find({ category: category }).populate('category')
+        return useSuccessResponse(res,massages.success,data,200)
+      
     } catch (error) {
         console.log(error)
-        return res.status(401).json({ message: "Error,", error })
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }

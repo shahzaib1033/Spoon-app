@@ -52,7 +52,7 @@ const uploads = async (req, res, next) => {
     }
     catch (err) {
         console.log(err);
-        useErrorResponse(res, 'error', 404)
+      return  useErrorResponse(res, 'error', 404)
 
     }
 }
