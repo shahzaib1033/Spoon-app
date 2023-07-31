@@ -125,6 +125,12 @@ const getOrder = async (req, res) => {
         const { page, pageSize, skip } = req.query;
 
         const userId = req.user._id
+        const { _id, role } = req.user;
+        if ((role === 'superAdmin' || role === 'admin')) {
+            const data = await OrderModel.find().skip(skip).limit(pageSize);
+            return useSuccessResponse(res, massages.success, data, 200)
+
+        }
         const orderDetails = await OrderModel.find({ userId }).skip(skip).limit(pageSize);
         if (orderDetails) {
             return useSuccessResponse(res, massages.success, orderDetails, 200)

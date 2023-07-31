@@ -30,9 +30,13 @@ const registerModel = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    isAdmin: {
-        type: Boolean,
-        default: false
+    role: {
+        type: String,
+        enum: ['superAdmin', 'admin', 'user'],
+        default: 'user'
+    },
+    tokenVersion: {
+        type: Number
     }
 
 

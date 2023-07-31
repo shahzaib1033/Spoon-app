@@ -5,7 +5,7 @@ const doc = {
         title: "spoonApplication",
         description: "Description",
     },
-    host: "localhost:3000",
+    host: "localhost:8080",
     basePath: "",
     schemes: ["http", "https"],
 };

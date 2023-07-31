@@ -27,9 +27,10 @@ const {
     deleteCategory
 } = require('../../controllers/admin/category')
 
+const { deleteAdmin, addAdmin, getAdmin } = require('../../controllers/admin/addAdmin');
+
 const { checktokenValidation } = require('../../middlewears/jwttoken');
 const { uploads } = require('../../middlewears/uploads');
-
 router
 
     // category
@@ -37,13 +38,13 @@ router
     .get("/readSingleSategory", checktokenValidation, readsingleCategory)
     .get("/getAllCategory", checktokenValidation, readAllCategory)
     .post("/updateCategory", checktokenValidation, updateCategory)
-    .post("/deleteCategory", checktokenValidation, deleteCategory)
+    .delete("/deleteCategory", checktokenValidation, deleteCategory)
     // subcategory
     .post("/addsubCategory", checktokenValidation, createsubCategory)
     .get("/readSingleSategory", checktokenValidation, readsinglesubCategory)
     .get("/getsubCategory", checktokenValidation, readAllsubCategory)
     .post("/updatesubCategory", checktokenValidation, updatesubCategory)
-    .post("/deletesubCategory", checktokenValidation, deletesubCategory)
+    .delete("/deletesubCategory", checktokenValidation, deletesubCategory)
     // produsts
     .post('/createproducts', checktokenValidation, createProduct)
     .get('/getProducts', checktokenValidation, getProduct)
@@ -52,6 +53,10 @@ router
     .get('/getProductsBySearch', checktokenValidation, searchProduct)
     .get('/filteredProducts', checktokenValidation, filteredProducts)
     .put('/updateproducts', checktokenValidation, updateProduct)
-    .post('/deleteproducts', checktokenValidation, deleteProduct);
+    .delete('/deleteproduct', checktokenValidation, deleteProduct)
+    //superAdmin (add admin and user)
+    .post('/createaccount', checktokenValidation, addAdmin)
+    .get('/getAdmins', checktokenValidation, getAdmin)
+    .delete('/deleteAccount', checktokenValidation, deleteAdmin)
 
 module.exports = router

@@ -34,8 +34,8 @@ const giveReview = async (req, res) => {
                         const product = await productModel.findOne({ productId: productId })
                         const length = reviews.length
                         product.rating = sum / length
-                        const Data = await product.save();
-                        if (Data) {
+                        const data = await product.save();
+                        if (data) {
                             return useSuccessResponse(res, massages.success, data.rating, 200)
                         } else {
                             return useErrorResponse(res, massages.internalError, 500)

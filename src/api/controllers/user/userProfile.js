@@ -87,7 +87,7 @@ const showProfile = async (req, res) => {
         useSuccessResponse(res, massages.success, data, 200)
 
     } catch (error) {
-        useErrorResponse(res, massage.internalError, 500)
+        useErrorResponse(res, massages.internalError, 500)
 
     }
 }

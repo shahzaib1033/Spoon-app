@@ -1,6 +1,7 @@
 const massages = require('../../../config/methods/massage');
 const { useSuccessResponse, useErrorResponse } = require('../../../config/methods/response');
 const { Category, Subcategory } = require('../../models/admin/products/productCategory');
+
 const productModel = require('../../models/admin/products/products');
 
 
@@ -10,8 +11,8 @@ const createProduct = async (req, res) => {
     try {
         const { productName, description, category, subcategory, imagePath, variants } = req.body;
         console.log(productName, description, category, subcategory, imagePath, variants)
-        const { _id, isAdmin } = req.user;
-        if (isAdmin == true) {
+        const { _id, role } = req.user;
+        if ((role === 'superAdmin' || role === 'admin')) {
             const Categorys = await Category.findOne({ _id: category });
 
             const SubCategory = await Subcategory.findOne({ _id: subcategory });
@@ -30,9 +31,9 @@ const createProduct = async (req, res) => {
                 });
 
                 const data = await productData.save();
-                if(data)
+                if (data)
                     return useSuccessResponse(res, massages.success, productData, 201)
-                    else 
+                else
                     return useErrorResponse(res, massages.internalError, 500)
             } else {
                 return useErrorResponse(res, massages.alreadyexistings, 404)
@@ -75,29 +76,37 @@ const getProduct = async (req, res) => {
         //         });
         // }
         console.log(req.query);
-        const ExistingProducts = await productModel.find().populate('category').populate('subcategory').skip(skip).limit(pageSize);
+        if (req.query._id) {
 
-        if (ExistingProducts) {
-            res.status(201).json({ message: "Sub Categories has been Displayed", ExistingProducts, page })
+            const data = await productModel.findOne({ _id: req.query._id }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
+            if (data) {
+                return useSuccessResponse(res, massages.success, data, 200)
+            } else {
+                return useErrorResponse(res, massages.notfound, 404)
+            }
         } else {
-            res.status(404).json({ message: "Sub Categorie Does not Exist" })
+            const data = await productModel.find().populate('category').populate('subcategory').skip(skip).limit(pageSize);
+            if (data) {
+                return useSuccessResponse(res, massages.success, data, 200)
+            } else {
+                return useErrorResponse(res, massages.notfound, 404)
+            }
+
         }
 
 
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Internal Server Error" });
-
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }
 const updateProduct = async (req, res) => {
     try {
-        const { productImage, ProductId, name, description, price, categoryId, subcategoryId, variants } = req.body;
-        const { _id, isAdmin } = req.user;
-
-        if (isAdmin == true) {
+        const { productName, ProductId, description, category, subcategory, imagePath, variants } = req.body;
+        const { _id, role } = req.user;
+        if ((role ==='superAdmin'|| role === 'admin')) {
             // const category = await Category.findOne({ _id: categoryId });
 
             // const productData = await Subcategory.findOne({ _id: subcategoryId });
@@ -106,28 +115,31 @@ const updateProduct = async (req, res) => {
             // console.log("Sub Category " + SubCategory)
 
             if (productData) {
-                productData.productImage = productData.productImage || productImage
-                productData.name = name || productData.name
+                productData.productImage = imagePath || productData.productImage
+                productData.name = productName || productData.name
                 productData.description = description || productData.description
-                productData.price = price || productData.price
-                productData.category = categoryId || productData.category
-                productData.subcategory = subcategoryId || productData.subcategory
+                productData.category = category || productData.category
+                productData.subcategory = subcategory || productData.subcategory
 
                 productData.variants = variants || productData.variants
 
                 const ProductData = await productData.save();
-                return res.status(201).json({ message: "Product has been updated", ProductData })
+                if (ProductData) {
+                    const data = await productModel.findOne({ _id: ProductId })
+                    return useSuccessResponse(res, massages.successInUpdate, data,200)
+                } else
+                    return useErrorResponse(res, massages.internalError, 500)
             } else {
-                return res.status(201).json({ message: "Product couldn't updated" })
+                return useErrorResponse(res, massages.notfound, 404)
             }
 
 
         }
-        res.status(403).json({ message: "Unauthorized User is not Admin " })
+        return useErrorResponse(res, massages.unAutherized, 403)
 
     } catch (error) {
         console.log(error)
-        res.status(401).json({ message: "Error Occur", error })
+        return useErrorResponse(res, massages.internalError, 500)
     }
 }
 const deleteProduct = async (req, res) => {
@@ -136,62 +148,76 @@ const deleteProduct = async (req, res) => {
         // console.log(req.body)
 
         const { ProductId } = req.body
-        const { _id, isAdmin } = req.user;
-        if (isAdmin == false) {
-            return res.status(403).send("unAutherized the user is not a admin")
+        const { _id, role } = req.user;
+        if (!(role ==='superAdmin'|| role === 'admin')) {
+            return useErrorResponse(res, massages.unAutherized, 403)
         }
 
-        const SubCategory = await Subcategory.findByIdAndDelete({ _id: ProductId })
-
-        return res.json({
-            massage: "deleted successfully",
-            SubCategory
-
-        });
+        const data = await productModel.findByIdAndDelete({ _id: ProductId })
+        if (data) {
+            return useSuccessResponse(res, massages.successInDelete, data,200)
+        }
+        return useErrorResponse(res, massages.notfound, 404)
     }
     catch (error) {
         console.log(error)
-        return res.status(401).json({ message: "Error Occur", error })
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }
 const categoryFilter = async (req, res) => {
     const { page, pageSize, skip, categoryId } = req.query;
-    const { _id, isAdmin } = req.user
+    const { _id, role } = req.user
 
     const productofcategory = await productModel.find({ category: categoryId }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
     // await productModel.find({ category: categoryId })
     if (productofcategory) {
-        res.status(200).json({ productofcategory, page })
+        const data = {
+            productofcategory,
+            page
+        }
+        return useSuccessResponse(res, massages.success, data, 200)
     }
 }
 const searchProduct = async (req, res) => {
-    const { _id, isAdmin } = req.user
+    const { _id, role } = req.user
     const { page, pageSize, skip, productName } = req.query;
 
 
 
     const productToSearch = await productModel.find({ name: productName }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
     if (productToSearch) {
-        return res.status(200).json({ productToSearch, page })
+        const data = {
+            productToSearch,
+            page
+        }
+        return useSuccessResponse(res, massages.success,)
     } else {
-        return res.status.send('No products')
+        return useErrorResponse(res, massages.notfound, 404)
+
     }
 }
 const subcategoryFilter = async (req, res) => {
     const { page, pageSize, skip, subcategoryId } = req.query;
     const productofsubcategory = await productModel.find({ subcategory: subcategoryId }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
     if (productofsubcategory) {
-        return res.status(200).json({ productofsubcategory, page });
+        const data = {
+            productofsubcategory,
+            page
+        }
+        return useSuccessResponse(res, massages.success, data, 200)
+
     }
     else {
-        use
-        return res.status().send('No subcategories found')
+        return useErrorResponse(res, massages.notfound, 404)
+
+
     }
 }
 const filteredProducts = async (req, res) => {
     try {
-        const { _id, isAdmin } = req.user
+        const { _id, role
+        } = req.user
         const { page, pageSize, skip, size, color } = req.query;
         const Product = await productModel.find({
             variants: {
@@ -203,7 +229,6 @@ const filteredProducts = async (req, res) => {
                 },
             },
         }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
-
 
         // const products = Product.find({
         //     variants: {
@@ -228,11 +253,12 @@ const filteredProducts = async (req, res) => {
         // .populate('category').populate('subcategory').skip(skip).limit(pageSize);
 
 
-        useSuccessResponse(res, success, Product, 200)
+        return useSuccessResponse(res, success, Product, 200)
     } catch (err) {
-        useErrorResponse(res, 'error', 500)
+        return useErrorResponse(res, 'error', 500)
     }
     // if () { // } // else {//     return res.status(404).json('not fond') // }
+
 }
 module.exports =
 {

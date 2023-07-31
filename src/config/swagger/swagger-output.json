@@ -5,7 +5,7 @@
     "description": "Description",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "localhost:8080",
   "basePath": "",
   "schemes": [
     "http",
@@ -41,7 +41,7 @@
                 "password": {
                   "example": "any"
                 },
-                "isAdmin": {
+                "role": {
                   "example": "any"
                 }
               }
@@ -49,11 +49,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -71,9 +68,6 @@
                 "email": {
                   "example": "any"
                 },
-                "token": {
-                  "example": "any"
-                },
                 "password": {
                   "example": "any"
                 }
@@ -82,16 +76,13 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "default": {
+            "description": ""
           }
         }
       }
     },
-    "/user/verfication": {
+    "/user/verification": {
       "post": {
         "description": "",
         "parameters": [
@@ -109,8 +100,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -141,9 +132,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -219,9 +207,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -246,8 +231,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -270,8 +255,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -297,11 +282,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -332,9 +314,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -352,9 +331,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -405,9 +381,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -458,9 +431,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -478,9 +448,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "404": {
             "description": "Not Found"
           }
@@ -491,11 +458,8 @@
       "post": {
         "description": "",
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -523,17 +487,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "201": {
-            "description": "Created"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -564,17 +519,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -590,11 +536,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -631,8 +574,8 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -663,11 +606,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -698,11 +638,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -730,14 +667,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "201": {
-            "description": "Created"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -753,11 +684,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -785,11 +713,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -817,14 +742,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -840,8 +759,8 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -857,14 +776,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -895,23 +808,14 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
     },
     "/admin/add/deleteCategory": {
-      "post": {
+      "delete": {
         "description": "",
         "parameters": [
           {
@@ -933,17 +837,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -966,7 +861,7 @@
                 "name": {
                   "example": "any"
                 },
-                "CategoryId": {
+                "categoryId": {
                   "example": "any"
                 }
               }
@@ -974,14 +869,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -994,17 +883,21 @@
             "name": "authorization",
             "in": "header",
             "type": "string"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "subCategoryId",
+            "in": "query",
+            "type": "string"
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1038,23 +931,14 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
     },
     "/admin/add/deletesubCategory": {
-      "post": {
+      "delete": {
         "description": "",
         "parameters": [
           {
@@ -1079,17 +963,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1109,22 +984,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
+                "productName": {
                   "example": "any"
                 },
                 "description": {
                   "example": "any"
                 },
-                "categoryId": {
+                "category": {
                   "example": "any"
                 },
-                "subcategoryId": {
+                "subcategory": {
+                  "example": "any"
+                },
+                "imagePath": {
                   "example": "any"
                 },
                 "variants": {
-                  "example": "any"
-                },
-                "productImage": {
                   "example": "any"
                 }
               }
@@ -1132,17 +1007,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1154,6 +1020,11 @@
           {
             "name": "authorization",
             "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "_id",
+            "in": "query",
             "type": "string"
           },
           {
@@ -1173,14 +1044,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1216,11 +1081,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1256,11 +1118,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1296,11 +1155,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1341,11 +1197,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -1365,25 +1218,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "productImage": {
+                "productName": {
                   "example": "any"
                 },
                 "ProductId": {
                   "example": "any"
                 },
-                "name": {
-                  "example": "any"
-                },
                 "description": {
                   "example": "any"
                 },
-                "price": {
+                "category": {
                   "example": "any"
                 },
-                "categoryId": {
+                "subcategory": {
                   "example": "any"
                 },
-                "subcategoryId": {
+                "imagePath": {
                   "example": "any"
                 },
                 "variants": {
@@ -1394,23 +1244,14 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          "default": {
+            "description": ""
           }
         }
       }
     },
-    "/admin/add/deleteproducts": {
-      "post": {
+    "/admin/add/deleteproduct": {
+      "delete": {
         "description": "",
         "parameters": [
           {
@@ -1432,17 +1273,92 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/admin/add/createaccount": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           },
-          "401": {
-            "description": "Unauthorized"
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "userName": {
+                  "example": "any"
+                },
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                },
+                "role": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/admin/add/getAdmins": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/admin/add/deleteAccount": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
           },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }

@@ -14,9 +14,10 @@ require("dotenv").config();
 const signUpHandler = async (req, res) => {
     try {
 
-        const { userName, email, password, isAdmin } = req.body;
+        const { userName, email, password, role } = req.body;
+        const code = generatePassword(4)
 
-        const oldUser = await userInfo.findOne({ email })
+        const oldUser = await userInfo.findOne({ email,isdeleted:false })
         if (oldUser) {
             return useErrorResponse(res, massages.alreadyexisting, 403)
         }
@@ -25,16 +26,14 @@ const signUpHandler = async (req, res) => {
             userName: userName,
             email: email,
             password: encryptedpassword,
-            isAdmin: isAdmin
+            role: role,
+            OTP: code
 
         });
 
 
         if (saveData) {
-            const code = await generatePassword(4)
             console.log(code)
-            saveData.OTP = code;
-            await saveData.save();
             console.log(saveData.OTP)
             const subject = "User Verification"
             await emailsender(email, code, subject);
@@ -86,28 +85,28 @@ const signinHandler = async (req, res) => {
         const user = await userInfo.findOne({ email })
         const { userName } = await user
         if (!user.isActive) {
+            if (user.isdeleted == true) {
+          
+                return useErrorResponse(res, 'the account is deleted', 404)
+            }
             console.log(massages.verifyFirst);
             return useErrorResponse(res, massages.verifyFirst, 401)
         }
-
-        const tokenVersion = await generatePassword(9);
+        const tokenVersion = generatePassword(9);
         if (email && (await bcrypt.compare(password, user.password)) && !(user.isDelete)) {
-            const tokens = jwt.sign({ _id: user.id, isAdmin: user.isAdmin, tokenVersion: tokenVersion }, process.env.SECRET);
-            const data = { userName, email, tokens }
+            const token = jwt.sign({ _id: user.id, role: user.role, tokenVersion: tokenVersion }, process.env.SECRET);
+            user.tokenVersion = tokenVersion;
+            await user.save()
+            const data = { userName, email, token }
             // console.log(massages.successInLogin);
             // console.log(tokens);
 
-           return useSuccessResponse(res, massages.successInLogin, data, 200)
+            return useSuccessResponse(res, massages.successInLogin, data, 200)
         }
-
         else {
-        
-
             return useErrorResponse(res, massages.invalidData, 303)
-
         }
     }
-
     catch (err) {
         console.log(err);
         return useErrorResponse(res, massages.verifyFirst, 401)
@@ -132,12 +131,11 @@ const updateHandler = async (req, res) => {
         const data = {
             userName, email,
         }
-        return useSuccessResponse(res, massages.successInUpdat, data, 200)
-
-
+        return useSuccessResponse(res, massages.successInUpdate, data, 200)
     }
     catch (err) {
         console.log(err)
+        return useErrorResponse(res, massages.internalError, 500)
     }
 
 }
@@ -169,12 +167,14 @@ const emailValidator = async (req, res) => {
         }
         if (user.OTP === OTP) {
             const tokenVersion = generatePassword(9);
-            const tokens = jwt.sign({ _id: user.id, isAdmin: user.isAdmin, tokenVersion: tokenVersion }, process.env.SECRET);
-            // console.log(token, massages.successInLogin)
-            const { userName, lastName, email, documents } = await user
-            const data = { userName, email, tokens }
+            const token = jwt.sign({ _id: user.id, role: user.role, tokenVersion: tokenVersion }, process.env.SECRET);
+            user.tokenVersion = tokenVersion;            // console.log(token, massages.successInLogin)
+            const { userName, email } = await user
+            const data = { userName, email, token }
             user.isActive = true
-            user.OTP = null;
+            const OTP = crypto.randomBytes(15).toString('hex');
+
+            user.OTP = OTP;
             await user.save();
             console.log(user.isActive)
             return useSuccessResponse(res, 'successfully login and varification', data, 200)
@@ -184,6 +184,7 @@ const emailValidator = async (req, res) => {
             return useErrorResponse(res, 'invalid data', 400)
         }
     } catch (err) {
+        console.log(err);
         return useErrorResponse(res, 'error', 500)
     }
 }
@@ -225,7 +226,7 @@ const forgetPassword = async (req, res) => {
             await user.save();
             const subject = 'Forgot your password'
             await emailsender(email, url, subject);
-            return useSuccessResponse(res, 'varification', '', 200)
+            return useSuccessResponse(res, massages.success, { email }, 200)
         }
         return useErrorResponse(res, massages.userNotfond, 404)
 
@@ -246,9 +247,11 @@ const resetThePassword = async (req, res) => {
                 console.log(user)
                 const encryptedpassword = await bcrypt.hash(newPassword, 10)
                 user.password = encryptedpassword;
-                user.OTP = null;
+                const token = crypto.randomBytes(15).toString('hex');
+
+                user.OTP = token;
                 await user.save();
-                return useSuccessResponse(res, massages.successInReset, '', 200)
+                return useSuccessResponse(res, massages.successInReset, {}, 200)
             }
             return useErrorResponse(res, massages.tokenNotExist, 404)
         }
@@ -256,7 +259,7 @@ const resetThePassword = async (req, res) => {
             return useErrorResponse(res, massages.tokenNotExist, 404)
     } catch (err) {
         console.log(err);
-        return useErrorResponse(res, 'error', 500)
+        return useErrorResponse(res, massages.internalError, 500)
 
     }
 

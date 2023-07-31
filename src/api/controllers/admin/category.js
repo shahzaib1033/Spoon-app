@@ -6,8 +6,9 @@ const createCategory = async (req, res) => {
     try {
 
         const { name } = req.body
-        const { _id, isAdmin } = req.user;
-        if (isAdmin == false) {
+        const { _id, role } = req.user;
+        console.log(role);
+        if (!(role ==='superAdmin'|| role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 401)
         }
 
@@ -39,8 +40,8 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
     try {
         const { name, categoryId } = req.body;
-        const { _id, isAdmin } = req.user;
-        if (isAdmin == false) {
+        const { _id, role } = req.user;
+        if (!(role ==='superAdmin'|| role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 401)
         }
 
@@ -67,8 +68,8 @@ const deleteCategory = async (req, res) => {
         // console.log(req.body)
 
         const { categoryId } = req.body
-        const { _id, isAdmin } = req.user;
-        if (isAdmin == false) {
+        const { _id, role } = req.user;
+        if (!(role ==='superAdmin'|| role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 401)
 
 
@@ -91,7 +92,8 @@ const readsingleCategory = async (req, res) => {
 const readAllCategory = async (req, res) => {
 
     try {
-        const categorys = await Category.find({})
+        console.log(req.query)
+        const categorys = await Category.find(req.query)
         return useSuccessResponse(res, massages.success, categorys, 200)
     } catch (error) {
         console.log(error)
