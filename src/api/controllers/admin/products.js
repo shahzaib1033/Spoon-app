@@ -8,7 +8,7 @@ const productModel = require('../../models/admin/products/products');
 
 const createProduct = async (req, res) => {
 
-    try {
+    try {    
         const { productName, description, category, subcategory, imagePath, variants } = req.body;
         console.log(productName, description, category, subcategory, imagePath, variants)
         const { _id, role } = req.user;
