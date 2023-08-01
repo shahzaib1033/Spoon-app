@@ -10,7 +10,7 @@ const createProduct = async (req, res) => {
 
     try {    
         const { productName, description, category, subcategory, imagePath, variants } = req.body;
-        console.log(productName, description, category, subcategory, imagePath, variants)
+       
         const { _id, role } = req.user;
         if ((role === 'superAdmin' || role === 'admin')) {
             const Categorys = await Category.findOne({ _id: category });
