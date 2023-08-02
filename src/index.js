@@ -22,7 +22,8 @@ require('./config/DB/connection')
 
 // middleware 
 app.use(express.static('default'));
-app.use(cors())
+app.use(cors());
+
 app.use(express.json())
 // app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use(bodyParser.urlencoded({ extended: false }));
