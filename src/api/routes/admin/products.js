@@ -48,7 +48,7 @@ router
     // produsts
     .post('/createproducts', checktokenValidation, createProduct)
     .get('/getProducts', checktokenValidation, getProduct)
-    .get('/getProductsWithCategory', checktokenValidation, categoryFilter)
+    .get('/getWithCategory', checktokenValidation, categoryFilter)
     .get('/getProductsWithSubcategory', checktokenValidation, subcategoryFilter)
     .get('/getProductsBySearch', checktokenValidation, searchProduct)
     .get('/filteredProducts', checktokenValidation, filteredProducts)

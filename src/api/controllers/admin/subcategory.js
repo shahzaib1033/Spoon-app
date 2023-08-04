@@ -12,14 +12,14 @@ const createsubCategory = async (req, res) => {
             return useErrorResponse(res, massages.unAutherized, 403)
         }
 
-        const existingcategory = await Category.findOne({ name })
+        const existingcategory = await Subcategory.findOne({ name: name.toLowerCase() })
 
         // const { name } = req.body
         if (!(existingcategory)) {
             const savedata = await Subcategory.create(
                 {
                     category: categoryId,
-                    name: name,
+                    name: name.toLowerCase(),
                     subcategoryImage: subCategoryImage
                 }
             )
@@ -30,7 +30,7 @@ const createsubCategory = async (req, res) => {
             }
         }
         else
-            return useErrorResponse(res, massages.internalError, 500)
+            return useErrorResponse(res, massages.alreadyexisting, 400)
 
     }
     catch (err) {

@@ -8,9 +8,9 @@ const productModel = require('../../models/admin/products/products');
 
 const createProduct = async (req, res) => {
 
-    try {    
+    try {
         const { productName, description, category, subcategory, imagePath, variants } = req.body;
-       
+
         const { _id, role } = req.user;
         if ((role === 'superAdmin' || role === 'admin')) {
             const Categorys = await Category.findOne({ _id: category });
@@ -106,7 +106,7 @@ const updateProduct = async (req, res) => {
     try {
         const { productName, ProductId, description, category, subcategory, imagePath, variants } = req.body;
         const { _id, role } = req.user;
-        if ((role ==='superAdmin'|| role === 'admin')) {
+        if ((role === 'superAdmin' || role === 'admin')) {
             // const category = await Category.findOne({ _id: categoryId });
 
             // const productData = await Subcategory.findOne({ _id: subcategoryId });
@@ -126,7 +126,7 @@ const updateProduct = async (req, res) => {
                 const ProductData = await productData.save();
                 if (ProductData) {
                     const data = await productModel.findOne({ _id: ProductId })
-                    return useSuccessResponse(res, massages.successInUpdate, data,200)
+                    return useSuccessResponse(res, massages.successInUpdate, data, 200)
                 } else
                     return useErrorResponse(res, massages.internalError, 500)
             } else {
@@ -149,13 +149,13 @@ const deleteProduct = async (req, res) => {
 
         const { ProductId } = req.body
         const { _id, role } = req.user;
-        if (!(role ==='superAdmin'|| role === 'admin')) {
+        if (!(role === 'superAdmin' || role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 403)
         }
 
         const data = await productModel.findByIdAndDelete({ _id: ProductId })
         if (data) {
-            return useSuccessResponse(res, massages.successInDelete, data,200)
+            return useSuccessResponse(res, massages.successInDelete, data, 200)
         }
         return useErrorResponse(res, massages.notfound, 404)
     }
@@ -169,11 +169,11 @@ const categoryFilter = async (req, res) => {
     const { page, pageSize, skip, categoryId } = req.query;
     const { _id, role } = req.user
 
-    const productofcategory = await productModel.find({ category: categoryId }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
+    const subcategorys = await Subcategory.find({ category: categoryId }).populate('category').skip(skip).limit(pageSize);
     // await productModel.find({ category: categoryId })
-    if (productofcategory) {
+    if (subcategorys) {
         const data = {
-            productofcategory,
+            subcategorys,
             page
         }
         return useSuccessResponse(res, massages.success, data, 200)
@@ -181,28 +181,29 @@ const categoryFilter = async (req, res) => {
 }
 const searchProduct = async (req, res) => {
     const { _id, role } = req.user
-    const { page, pageSize, skip, productName } = req.query;
+    const { page, pageSize, skip, subcategory } = req.query;
+    console.log(subcategory)
 
-
-
-    const productToSearch = await productModel.find({ name: productName }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
+    const subcategoryId = await Subcategory.findOne({ name: subcategory })
+    console.log(subcategoryId._id)
+    const productToSearch = await productModel.find({ subcategory: subcategoryId._id }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
     if (productToSearch) {
         const data = {
             productToSearch,
             page
         }
-        return useSuccessResponse(res, massages.success,)
+        return useSuccessResponse(res, massages.success,data,200)
     } else {
         return useErrorResponse(res, massages.notfound, 404)
 
     }
 }
 const subcategoryFilter = async (req, res) => {
-    const { page, pageSize, skip, subcategoryId } = req.query;
-    const productofsubcategory = await productModel.find({ subcategory: subcategoryId }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
-    if (productofsubcategory) {
+    const { page, pageSize, skip, categoryId, subcategoryId } = req.query;
+    const products = await productModel.find({ subcategory: subcategoryId, category: categoryId }).populate('category').populate('subcategory').skip(skip).limit(pageSize);
+    if (products) {
         const data = {
-            productofsubcategory,
+            products,
             page
         }
         return useSuccessResponse(res, massages.success, data, 200)
