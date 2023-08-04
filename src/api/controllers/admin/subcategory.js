@@ -5,10 +5,10 @@ const { Category, Subcategory } = require('../../models/admin/products/productCa
 const createsubCategory = async (req, res) => {
     try {
 
-        const { name, categoryId } = req.body
+        const { name, categoryId, subCategoryImage } = req.body
         const { _id, role } = req.user;
         console.log(role)
-        if (!(role ==='superAdmin'|| role === 'admin')) {
+        if (!(role === 'superAdmin' || role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 403)
         }
 
@@ -19,7 +19,8 @@ const createsubCategory = async (req, res) => {
             const savedata = await Subcategory.create(
                 {
                     category: categoryId,
-                    name: name
+                    name: name,
+                    subcategoryImage: subCategoryImage
                 }
             )
             const data = await savedata.save();
@@ -40,9 +41,9 @@ const createsubCategory = async (req, res) => {
 }
 const updatesubCategory = async (req, res) => {
     try {
-        const { name, categoryId, subCategoryId } = req.body;
+        const { name, categoryId, subCategoryId, subCategoryImage } = req.body;
         const { _id, role } = req.user;
-        if (!(role ==='superAdmin'|| role === 'admin')) {
+        if (!(role === 'superAdmin' || role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 403)
 
         }
@@ -51,6 +52,7 @@ const updatesubCategory = async (req, res) => {
         if (subcategory) {
             subcategory.name = name || subcategory.name,
                 subcategory.category = categoryId || subcategory.category
+            subcategory.subcategoryImage = subCategoryImage || subcategory.subcategoryImage
             subcategory.save();
             return useSuccessResponse(res, massages.successInUpdate, subcategory, 200)
         }
@@ -71,7 +73,7 @@ const deletesubCategory = async (req, res) => {
 
         const { categoryId, subCategoryId } = req.body
         const { _id, role } = req.user;
-        if (!(role ==='superAdmin'|| role === 'admin')) {
+        if (!(role === 'superAdmin' || role === 'admin')) {
             return useErrorResponse(res, massages.unAutherized, 403)
         }
 
@@ -89,10 +91,10 @@ const readsinglesubCategory = async (req, res) => {
 }
 const readAllsubCategory = async (req, res) => {
     try {
-        
+
         const { category, subCategoryId } = req.query
         if (subCategoryId) {
-            
+
             const data = await Subcategory.findOne({ _id: subCategoryId }).populate('category')
             return useSuccessResponse(res, massages.success, data, 200)
         }
