@@ -863,6 +863,9 @@
                 },
                 "categoryId": {
                   "example": "any"
+                },
+                "subCategoryImage": {
+                  "example": "any"
                 }
               }
             }
@@ -924,6 +927,9 @@
                   "example": "any"
                 },
                 "subCategoryId": {
+                  "example": "any"
+                },
+                "subCategoryImage": {
                   "example": "any"
                 }
               }
@@ -1050,7 +1056,7 @@
         }
       }
     },
-    "/admin/add/getProductsWithCategory": {
+    "/admin/add/getWithCategory": {
       "get": {
         "description": "",
         "parameters": [
@@ -1112,6 +1118,11 @@
             "type": "string"
           },
           {
+            "name": "categoryId",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "subcategoryId",
             "in": "query",
             "type": "string"
@@ -1149,7 +1160,7 @@
             "type": "string"
           },
           {
-            "name": "productName",
+            "name": "subcategory",
             "in": "query",
             "type": "string"
           }
